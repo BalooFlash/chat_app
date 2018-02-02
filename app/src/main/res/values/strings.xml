@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ChatApp</string>
+    <string name="app_name">mChat App</string>
     <string name="label_sign_out">Sign Out</string>
     <string name="label_send_button">Send</string>
 
