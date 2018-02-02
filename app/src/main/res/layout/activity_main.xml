@@ -12,13 +12,20 @@
         android:id="@+id/messageListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/linearLayout"
+        android:layout_above="@id/seperator"
         android:background="@color/colorWhite"
         android:stackFromBottom="true"
         android:divider="@android:color/transparent"
         android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/item_message"
         />
+
+    <View
+        android:id="@+id/seperator"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_above="@id/linearLayout"
+        android:background="@color/colorSeperator"/>
 
     <LinearLayout
         android:id="@+id/linearLayout"
