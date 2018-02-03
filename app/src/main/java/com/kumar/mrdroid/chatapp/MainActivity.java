@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
          * Firebase Realtime Database
          */
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mMessageDatabaseReference = mFirebaseDatabase.getReference().child("messages");h
+        mMessageDatabaseReference = mFirebaseDatabase.getReference().child("messages");
 
         mProgressbar = findViewById(R.id.progressBar);
         mMessageList = findViewById(R.id.messageListView);
@@ -110,7 +110,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // add functionality of send button
+                // add functionality of send button to real time database
+                Message message = new Message(mMessage.getText().toString().trim(), mUserName, null);
+                mMessageDatabaseReference.push().setValue(message);
 
 
                 // clear edittext on send button click
