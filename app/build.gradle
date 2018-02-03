@@ -28,5 +28,11 @@ dependencies {
     // for Displaying images
     implementation 'com.github.bumptech.glide:glide:3.6.1'
 
+    /***
+     *  Firebase dependencies
+     */
+    //  firebase Realtime database
+    implementation 'com.google.firebase:firebase-database:11.8.0'
+
 }
 apply plugin: 'com.google.gms.google-services'

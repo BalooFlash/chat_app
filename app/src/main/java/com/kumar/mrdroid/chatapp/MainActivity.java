@@ -14,11 +14,18 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mMessageDatabaseReference;
+
     private static final String TAG = "MainActivity";
     private static final String ANYNOMOUS = "anynomous";
     private static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
@@ -38,6 +45,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mUserName = ANYNOMOUS;
+
+        /***
+         * Firebase Realtime Database
+         */
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mMessageDatabaseReference = mFirebaseDatabase.getReference().child("messages");h
 
         mProgressbar = findViewById(R.id.progressBar);
         mMessageList = findViewById(R.id.messageListView);
