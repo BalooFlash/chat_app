@@ -1,5 +1,6 @@
 package com.kumar.mrdroid.chatapp;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,7 +14,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,6 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -29,10 +35,14 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mMessageDatabaseReference;
     private ChildEventListener mChildEventListener;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    List<AuthUI.IdpConfig> providers;
 
     private static final String TAG = "MainActivity";
     private static final String ANYNOMOUS = "anynomous";
     private static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
+    private static final int RC_SIGN_IN= 1;
 
     private ListView mMessageList;
     private MessageAdapter mAdapter;
@@ -54,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
          * Firebase Realtime Database
          */
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        providers = new ArrayList<>();
+        mFirebaseAuth = FirebaseAuth.getInstance();
         mMessageDatabaseReference = mFirebaseDatabase.getReference().child("messages");
 
         mProgressbar = findViewById(R.id.progressBar);
@@ -160,6 +172,32 @@ public class MainActivity extends AppCompatActivity {
 
         // listener to mMessagedatabseLisener
         mMessageDatabaseReference.addChildEventListener(mChildEventListener);
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                
+                if(user != null){
+                    //Already Sign In
+                    Toast.makeText(MainActivity.this, "You Are Signing in, Welcome to mChat",
+                            Toast.LENGTH_SHORT).show();
+                    
+                }else{
+                    //user is Sign out
+                    providers.add(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
+                    providers.add(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build());
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setIsSmartLockEnabled(false)
+                                    .setAvailableProviders(providers)
+                                    .build(),
+                            RC_SIGN_IN);
+                    
+                }
+
+            }
+        };
 
 
     }
@@ -173,5 +211,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        /***
+         * Attach AuthStatelistener to FirebaseAuth
+         */
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /***
+         * Attach AuthStatelistener to FirebaseAuth
+         */
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+
     }
 }
