@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
          * Firebase Realtime Database
          */
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        providers = new ArrayList<>();
         mFirebaseAuth = FirebaseAuth.getInstance();
+        providers = new ArrayList<>();
         mMessageDatabaseReference = mFirebaseDatabase.getReference().child("messages");
 
         mProgressbar = findViewById(R.id.progressBar);
@@ -175,7 +175,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()){
+            case R.id.action_sign_out:
+                AuthUI.getInstance().signOut(this);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -259,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
     private void detachDatabaseReadListener(){
         if(mChildEventListener != null){
             mMessageDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
         }
     }
 }
