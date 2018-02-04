@@ -7,10 +7,8 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -44,13 +42,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
          *    If  Image is send as the message
          */
         if(hasImage){
-            mMessage.setVisibility(View.GONE);
             mImage.setVisibility(View.VISIBLE);
+            mMessage.setVisibility(View.GONE);
 
             //render image using glide library in mImage
-            Glide.with(mImage.getContext()).
-                    load(messageObject.getmPhotoUrl()).
-                    into(mImage);
+            Glide.with(mImage.getContext())
+                    .load(messageObject.getmPhotoUrl())
+                    .into(mImage);
+
         }else{
             /***
              *    If  text is send as the message
@@ -61,7 +60,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         mSenderName.setText(messageObject.getmSenderName());
-
         return convertView;
     }
 

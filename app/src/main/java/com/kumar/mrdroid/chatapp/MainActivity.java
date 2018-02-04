@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
         /***
          * Firebase Realtime Database
          */
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
         providers = new ArrayList<>();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
 
@@ -173,13 +173,9 @@ public class MainActivity extends AppCompatActivity {
                                     .setAvailableProviders(providers)
                                     .build(),
                             RC_SIGN_IN);
-                    
                 }
-
             }
         };
-
-
     }
 
     @Override
@@ -202,15 +198,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        /***
-         * Attach AuthStatelistener to FirebaseAuth
-         */
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == RC_SIGN_IN){
@@ -223,22 +210,22 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Singed In Cancelled !", Toast.LENGTH_SHORT).show();
                 finish();
             }
-            else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
-                Uri selectedImageUri = data.getData();
-                StorageReference photoRef = mPhotoStorageReference.child(selectedImageUri.getLastPathSegment());
+        }
+        else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
+            Uri selectedImageUri = data.getData();
+            StorageReference photoRef = mPhotoStorageReference.child(selectedImageUri.getLastPathSegment());
 
-                // upload file to firebase storage
-                photoRef.putFile(selectedImageUri).addOnSuccessListener(
-                        this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+            // upload file to firebase storage
+            photoRef.putFile(selectedImageUri).addOnSuccessListener(
+                    this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        Message message = new Message(null, mUserName, downloadUrl.toString());
-                        mMessageDatabaseReference.push().setValue(message);
-                    }
-                });
-            }
+                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                            Message message = new Message(null, mUserName, downloadUrl.toString());
+                            mMessageDatabaseReference.push().setValue(message);
+                        }
+                    });
         }
     }
 
@@ -253,6 +240,15 @@ public class MainActivity extends AppCompatActivity {
         }
         detachDatabaseReadListener();
         mAdapter.clear();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /***
+         * Attach AuthStatelistener to FirebaseAuth
+         */
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
     private void onSignedInIntialized(String username){
@@ -301,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
     private void detachDatabaseReadListener(){
         if(mChildEventListener != null){
             mMessageDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
         }
     }
 }
