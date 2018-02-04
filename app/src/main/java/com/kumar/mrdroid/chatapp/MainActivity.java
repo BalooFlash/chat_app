@@ -1,5 +1,6 @@
 package com.kumar.mrdroid.chatapp;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -136,42 +137,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /***
-         * Read from Realtime Database
-         */
-        mChildEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                // get message from Realtime Database with position
-                Message message = dataSnapshot.getValue(Message.class);
-                // add message to adapter
-                mAdapter.add(message);
 
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-
-        // listener to mMessagedatabseLisener
-        mMessageDatabaseReference.addChildEventListener(mChildEventListener);
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -179,11 +145,10 @@ public class MainActivity extends AppCompatActivity {
                 
                 if(user != null){
                     //Already Sign In
-                    Toast.makeText(MainActivity.this, "You Are Signing in, Welcome to mChat",
-                            Toast.LENGTH_SHORT).show();
-                    
+                    onSignedInIntialized(user.getDisplayName());
                 }else{
                     //user is Sign out
+                    onSignedOutCleanup();
                     providers.add(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
                     providers.add(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build());
                     startActivityForResult(
@@ -214,21 +179,75 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        /***
-         * Attach AuthStatelistener to FirebaseAuth
-         */
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         /***
          * Attach AuthStatelistener to FirebaseAuth
          */
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
 
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        /***
+         * Attach AuthStatelistener to FirebaseAuth
+         */
+        if(mAuthStateListener != null){
+            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        }
+        detachDatabaseReadListener();
+        mAdapter.clear();
+    }
+
+    private void onSignedInIntialized(String username){
+        mUserName = username;
+        attachDatabaseReadListener();
+
+    }
+    private void onSignedOutCleanup(){
+        mUserName = ANYNOMOUS;
+        mAdapter.clear();
+        detachDatabaseReadListener();
+
+    }
+
+    private void attachDatabaseReadListener(){
+        if(mChildEventListener == null){
+            /***
+             * Read from Realtime Database
+             */
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    // get message from Realtime Database with position
+                    Message message = dataSnapshot.getValue(Message.class);
+                    // add message to adapter
+                    mAdapter.add(message);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {}
+            };
+            // listener to mMessagedatabseLisener
+            mMessageDatabaseReference.addChildEventListener(mChildEventListener);
+        }
+    }
+
+    private void detachDatabaseReadListener(){
+        if(mChildEventListener != null){
+            mMessageDatabaseReference.removeEventListener(mChildEventListener);
+        }
     }
 }
