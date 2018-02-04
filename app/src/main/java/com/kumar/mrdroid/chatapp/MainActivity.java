@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -28,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // define click event of mImagePickerButton
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
+                intent.setType("image/*");
                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
                 startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
 
@@ -224,6 +226,18 @@ public class MainActivity extends AppCompatActivity {
             else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
                 Uri selectedImageUri = data.getData();
                 StorageReference photoRef = mPhotoStorageReference.child(selectedImageUri.getLastPathSegment());
+
+                // upload file to firebase storage
+                photoRef.putFile(selectedImageUri).addOnSuccessListener(
+                        this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        Message message = new Message(null, mUserName, downloadUrl.toString());
+                        mMessageDatabaseReference.push().setValue(message);
+                    }
+                });
             }
         }
     }
