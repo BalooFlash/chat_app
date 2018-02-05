@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,13 +30,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -183,7 +188,17 @@ public class MainActivity extends AppCompatActivity {
         };
 
         // Firebase Remote Config
+        FirebaseRemoteConfigSettings configSettings= new FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                .build();
+        mFirebaseRemoteConfig.setConfigSettings(configSettings);
 
+        Map<String, Object> defaultConfigMap = new HashMap<>();
+        defaultConfigMap.put(MCHAT_MSG_LENGTH_KEY, DEFAULT_MSG_LENGTH_LIMIT);
+        mFirebaseRemoteConfig.setDefaults(defaultConfigMap);
+
+        //method for fetch config
+        fetchConfig();
     }
 
     @Override
@@ -306,5 +321,35 @@ public class MainActivity extends AppCompatActivity {
             mMessageDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
+    }
+
+    private void fetchConfig(){
+        // set cache expiration time
+        long cacheExp = 3600;
+        if(mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()){
+            cacheExp = 0;
+        }
+        mFirebaseRemoteConfig.fetch(cacheExp)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mFirebaseRemoteConfig.activateFetched();
+                        applyRetrieveLengthLimit();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error fetching Config ", e);
+                        applyRetrieveLengthLimit();
+
+                    }
+                });
+    }
+
+    private void applyRetrieveLengthLimit(){
+        Long mchat_msg_length = mFirebaseRemoteConfig.getLong(MCHAT_MSG_LENGTH_KEY);
+        mMessage.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mchat_msg_length.intValue())});
+        Log.d(TAG, MCHAT_MSG_LENGTH_KEY + " = " + mchat_msg_length);
     }
 }
