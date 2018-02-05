@@ -32,6 +32,8 @@ dependencies {
      */
     //  firebase Realtime database
     implementation 'com.google.firebase:firebase-database:11.0.4'
+    // firebaseUI for realtime databsase
+    implementation 'com.firebaseui:firebase-ui-database:2.3.0'
 
     /***
      *  Firebase Authentication
