@@ -42,6 +42,8 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:2.3.0'
     // firebase storage
     implementation 'com.google.firebase:firebase-storage:11.0.4'
+    //firebase notification
+    implementation 'com.google.firebase:firebase-messaging:11.0.4'
 
 
 }
