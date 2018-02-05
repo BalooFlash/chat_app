@@ -44,7 +44,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:11.0.4'
     //firebase notification
     implementation 'com.google.firebase:firebase-messaging:11.0.4'
-
+    //firebase remote-config
+    implementation 'com.google.firebase:firebase-config:11.0.4'
 
 }
 apply plugin: 'com.google.gms.google-services'

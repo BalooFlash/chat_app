@@ -27,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -46,10 +47,12 @@ public class MainActivity extends AppCompatActivity {
     List<AuthUI.IdpConfig> providers;
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mPhotoStorageReference;
+    private FirebaseRemoteConfig mFirebaseRemoteConfig;
 
     private static final String TAG = "MainActivity";
     private static final String ANYNOMOUS = "anynomous";
     private static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
+    private static final String MCHAT_MSG_LENGTH_KEY = "mchat_msg_length";
     private static final int RC_SIGN_IN= 1;
     private static final int RC_PHOTO_PICKER = 2;
 
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         providers = new ArrayList<>();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
+        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
         mMessageDatabaseReference = mFirebaseDatabase.getReference().child("messages");
         mPhotoStorageReference = mFirebaseStorage.getReference().child("chat_images");
@@ -177,6 +181,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+
+        // Firebase Remote Config
+
     }
 
     @Override
