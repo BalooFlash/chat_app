@@ -1,6 +1,6 @@
 # mChatApp
 
-mChat is a Android Chatbox App which is made completely by using firebase and JavaScript.
+**mChat** is a **Android Chatbox App** which is made completely by using **Firebase** and **JavaScript**.
 
 <div align="center">
 	<img src="snapshots/mchat02.gif" width="320">
